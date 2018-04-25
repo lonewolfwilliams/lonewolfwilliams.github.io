@@ -754,7 +754,7 @@
             { 
               float lfo = sin(t/amp);
               float ang = cos(gl_FragCoord.y*0.005) * lfo;
-              float off = 213.0 - 33.0 * sin(t*0.01); //left third
+              float off = 107.0 - 66.0 * sin(t*0.01); //left third
               
               float x1=((sin( (t/amp)+ang ))*50.0)+off;
               float x2=((sin( (t/amp)+ang+1.570 ))*50.0)+off;
