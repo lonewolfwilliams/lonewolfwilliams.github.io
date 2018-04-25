@@ -737,26 +737,51 @@
 
 		<script id="2d-vertex-shader" type="x-shader/x-vertex">// <![CDATA[
 			attribute vec2 a_position;
-			void main() {
+            
+            void main() 
+            {
 				gl_Position = vec4(a_position, 0, 1);
 			}
 		// ]]></script>
 
 		<script id="2d-fragment-shader" type="x-shader/x-fragment">// <![CDATA[
-			void main() {
-				gl_FragColor = vec4(gl_FragCoord.x / 640.0, gl_FragCoord.y / 480.0, 0, 1);
+            precision lowp float;
+            
+            uniform float t;
+            uniform float amp;
+            
+            void main() 
+            { 
+              float lfo = sin(t/amp);
+              float ang = cos(gl_FragCoord.y*0.005) * lfo;
+              float off = 320.0 - 160.0 * sin(t*0.01);
+              
+              float x1=((sin( (t/amp)+ang ))*50.0)+off;
+              float x2=((sin( (t/amp)+ang+1.570 ))*50.0)+off;
+              float x3=((sin( (t/amp)+ang+3.141 ))*50.0)+off;
+              float x4=((sin( (t/amp)+ang+4.711 ))*50.0)+off;
+             
+              vec4 col = vec4(0.2, 0.2, 0.2, 1.0);
+              
+              if(gl_FragCoord.x >= x1 && gl_FragCoord.x < x2) col = vec4(0.4, 0.4, 0.4, 1.0) * ((x2-x1) / 50.0); 
+              else if(gl_FragCoord.x >= x2 && gl_FragCoord.x < x3) col = vec4(0.6, 0.6, 0.6, 1.0) * ((x3-x2) / 50.0); 
+              else if(gl_FragCoord.x >= x3 && gl_FragCoord.x < x4) col = vec4(0.8, 0.8, 0.8, 1.0) * ((x4-x3) / 50.0); 
+              else if(gl_FragCoord.x >= x4 && gl_FragCoord.x < x1) col = vec4(1.0, 1.0, 1.0, 1.0) * ((x4-x1) / 50.0); 
+               
+              gl_FragColor = col;
 			}
 		// ]]></script>
 
 		<script type="text/javascript">// <![CDATA[
+            var t = 0;
 			var gl;
 			var canvas;
 			var buffer;
 			var shaderScript;
-			var shaderSource;
-			var vertexShader;
+  			var shaderSource;
+  			var vertexShader;
 			var fragmentShader;
-			
+			  
 			window.onload = init;
 
 			function init() 
@@ -768,38 +793,44 @@
 
 				gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
-				buffer = gl.createBuffer();
-				gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-				gl.bufferData(
-					gl.ARRAY_BUFFER, 
-					new Float32Array([
-					-1.0, -1.0, 
-					1.0, -1.0, 
-					-1.0,  1.0, 
-					-1.0,  1.0, 
-					1.0, -1.0, 
-					1.0,  1.0]), 
-					gl.STATIC_DRAW
-				);
+                buffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+                gl.bufferData(
+                    gl.ARRAY_BUFFER, 
+                    new Float32Array([
+                    -1.0, -1.0, 
+                    1.0, -1.0, 
+                    -1.0,  1.0, 
+                    -1.0,  1.0, 
+                    1.0, -1.0, 
+                    1.0,  1.0]), 
+                    gl.STATIC_DRAW
+                );
 
-				shaderScript = document.getElementById("2d-vertex-shader");
-				shaderSource = shaderScript.text;
-				vertexShader = gl.createShader(gl.VERTEX_SHADER);
-				gl.shaderSource(vertexShader, shaderSource);
-				gl.compileShader(vertexShader);
+                shaderScript = document.getElementById("2d-vertex-shader");
+                shaderSource = shaderScript.text;
+                vertexShader = gl.createShader(gl.VERTEX_SHADER);
+                gl.shaderSource(vertexShader, shaderSource);
+                gl.compileShader(vertexShader);
 
-				shaderScript   = document.getElementById("2d-fragment-shader");
-				shaderSource   = shaderScript.text;
-				fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-				gl.shaderSource(fragmentShader, shaderSource);
-				gl.compileShader(fragmentShader);
+                shaderScript   = document.getElementById("2d-fragment-shader");
+                shaderSource   = shaderScript.text;
+                fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+                gl.shaderSource(fragmentShader, shaderSource);
+                gl.compileShader(fragmentShader);
 
-				program = gl.createProgram();
-				gl.attachShader(program, vertexShader);
-				gl.attachShader(program, fragmentShader);
-				gl.linkProgram(program);	
-				gl.useProgram(program);
-			
+                program = gl.createProgram();
+                gl.attachShader(program, vertexShader);
+                gl.attachShader(program, fragmentShader);
+                gl.linkProgram(program);	
+                gl.useProgram(program);
+                
+                loc = gl.getUniformLocation(program, "amp");
+                gl.uniform1f(loc, 5.0);
+                
+                loc = gl.getUniformLocation(program, "ang");
+                gl.uniform1f(loc, 0.0);
+                
 				render();
 			}
 
@@ -807,12 +838,16 @@
 			{
 				window.requestAnimationFrame(render, canvas);
 
+                loc = gl.getUniformLocation(program, "t");
+                gl.uniform1f(loc, t);
+                t += 0.16;
+              
 				gl.clearColor(1.0, 0.0, 0.0, 1.0);
 				gl.clear(gl.COLOR_BUFFER_BIT);
 
 				positionLocation = gl.getAttribLocation(program, "a_position");
-				gl.enableVertexAttribArray(positionLocation);
-				gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+  				gl.enableVertexAttribArray(positionLocation);
+  				gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
 				gl.drawArrays(gl.TRIANGLES, 0, 6);
 			}
