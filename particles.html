@@ -754,7 +754,7 @@
             { 
               float lfo = sin(t/amp);
               float ang = cos(gl_FragCoord.y*0.005) * lfo;
-              float off = 213.0 - 142.0 * sin(t*0.01);
+              float off = 213.0 - 142.0 * sin(t*0.01); //left third
               
               float x1=((sin( (t/amp)+ang ))*50.0)+off;
               float x2=((sin( (t/amp)+ang+1.570 ))*50.0)+off;
@@ -766,7 +766,8 @@
               if(gl_FragCoord.x >= x1 && gl_FragCoord.x < x2) col = vec4(0.4, 0.4, 0.4, 1.0) * ((x2-x1) / 50.0); 
               else if(gl_FragCoord.x >= x2 && gl_FragCoord.x < x3) col = vec4(0.6, 0.6, 0.6, 1.0) * ((x3-x2) / 50.0); 
               else if(gl_FragCoord.x >= x3 && gl_FragCoord.x < x4) col = vec4(0.8, 0.8, 0.8, 1.0) * ((x4-x3) / 50.0); 
-              else if(gl_FragCoord.x >= x4 && gl_FragCoord.x < x1) col = vec4(1.0, 1.0, 1.0, 1.0) * ((x4-x1) / 50.0); 
+              else if(gl_FragCoord.x >= x4 && gl_FragCoord.x < x1) col = vec4(1.0, 1.0, 1.0, 1.0) * ((x1-x4) / 50.0); 
+              col.a = 1.0;
                
               gl_FragColor = col;
 			}
