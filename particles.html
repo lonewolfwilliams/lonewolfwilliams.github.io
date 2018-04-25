@@ -786,10 +786,12 @@
 
 			function init() 
 			{
-				canvas        = document.getElementById('webGL').appendChild(document.createElement('canvas'));
-				gl            = canvas.getContext('experimental-webgl');
-				canvas.width  = 640;
-				canvas.height = 480;
+				canvas        		= document.getElementById('webGL').appendChild(document.createElement('canvas'));
+				gl            		= canvas.getContext('experimental-webgl');
+				canvas.width  		= 640;
+				canvas.height 		= 480;
+				canvas.style.width 	= '100%';
+				canvas.style.height = '100%';
 
 				gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
