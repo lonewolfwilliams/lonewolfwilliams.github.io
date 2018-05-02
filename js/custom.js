@@ -107,7 +107,7 @@ $(function() {
         items: 1,
         loop:true,
         autoplay:false,
-        smartSpeed:500
+	nav:true
     });
 
 
